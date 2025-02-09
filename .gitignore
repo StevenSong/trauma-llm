@@ -167,3 +167,9 @@ cython_debug/
 temp-*
 temp.*
 temp
+
+dev-*
+dev.*
+dev
+
+runs/
