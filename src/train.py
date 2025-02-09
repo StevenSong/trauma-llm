@@ -1,5 +1,4 @@
 from lightning.pytorch.cli import LightningCLI
-from lightning.pytorch.plugins.environments import SLURMEnvironment
 
 # fmt: off
 # isort: off
