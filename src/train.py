@@ -4,7 +4,7 @@ from lightning.pytorch.cli import LightningCLI
 # isort: off
 from model import LightningClassifierModel
 from data import LightningTraumaData
-from util import StrictWandbLogger
+from util import StrictWandbLogger, PredictionWriter
 # isort: on
 # fmt: on
 

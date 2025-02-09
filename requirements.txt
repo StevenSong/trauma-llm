@@ -26,3 +26,4 @@ tqdm
 transformers
 vllm
 wandb
+omegaconf

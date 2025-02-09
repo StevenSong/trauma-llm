@@ -289,6 +289,8 @@ class LightningTraumaData(LightningDataModule):
         n_splits: int = 5,
         split_seed: int = 42,
         note_types: list[NOTE_TYPE] = DEFAULT_NOTE_TYPES,
+        inference_batch_size: int = 64,
+        inference_num_workers: int = 4,
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -305,6 +307,7 @@ class LightningTraumaData(LightningDataModule):
                 tokenizer_name=self.hparams.tokenizer_name,
                 context_length=self.hparams.context_length,
             )
+        if stage in ["fit", "validate"]:
             self.val_ds = TraumaDataset(
                 data_dir=self.hparams.data_dir,
                 window=self.hparams.window,
@@ -315,6 +318,7 @@ class LightningTraumaData(LightningDataModule):
                 tokenizer_name=self.hparams.tokenizer_name,
                 context_length=self.hparams.context_length,
             )
+        if stage in ["test", "predict"]:
             self.test_ds = TraumaDataset(
                 data_dir=self.hparams.data_dir,
                 window=self.hparams.window,
@@ -354,7 +358,10 @@ class LightningTraumaData(LightningDataModule):
             shuffle=False,
             pin_memory=True,
             drop_last=False,
-            batch_size=self.hparams.batch_size,
+            batch_size=self.hparams.inference_batch_size,
             collate_fn=default_collate,
-            num_workers=self.hparams.num_workers,
+            num_workers=self.hparams.inference_num_workers,
         )
+
+    def predict_dataloader(self):
+        return self.test_dataloader()

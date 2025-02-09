@@ -82,3 +82,9 @@ class LightningClassifierModel(LightningModule):
         loss, batch_size = self._common_step(batch, batch_idx)
         self.log("test_loss", loss, batch_size=batch_size, sync_dist=True)
         return loss
+
+    def predict_step(self, batch, batch_idx):
+        _, preds = self.model(**batch)
+        mrns = batch["mrn"]
+        trues = batch[self.hparams.cls_target]
+        return preds, trues, mrns
