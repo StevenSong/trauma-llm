@@ -1,7 +1,7 @@
 #!/bin/bash -l
 
 #SBATCH --array=0-4
-#SBATCH --output=logs/log-train-%a-%A.out
+#SBATCH --output=logs/log-train-cls-mort-48h-test-%a-%A.out
 #SBATCH --partition=gpuq
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:4
@@ -23,9 +23,10 @@ srun python src/train.py fit \
 --config configs/classifier.yaml \
 --model.n_classes 2 \
 --model.cls_target hospital_mortality \
+--data.window 48 \
 --data.n_splits 5 \
 --data.test_split $TEST_SPLIT \
 --data.val_split $VAL_SPLIT \
---trainer.logger.name "cls-mort" \
---trainer.logger.version "test-$TEST_SPLIT"
+--trainer.logger.name "cls-mort-48h" \
+--trainer.logger.version "cls-mort-48h-test-$TEST_SPLIT"
 

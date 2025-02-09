@@ -1,7 +1,7 @@
 #!/bin/bash -l
 
 #SBATCH --array=0-4
-#SBATCH --output=logs/log-train-%a-%A.out
+#SBATCH --output=logs/log-train-cls-iss-24h-test-%a-%A.out
 #SBATCH --partition=gpuq
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:4
@@ -23,9 +23,10 @@ srun python src/train.py fit \
 --config configs/classifier.yaml \
 --model.n_classes 3 \
 --model.cls_target iss_tercile \
+--data.window 24 \
 --data.n_splits 5 \
 --data.test_split $TEST_SPLIT \
 --data.val_split $VAL_SPLIT \
---trainer.logger.name "cls-iss" \
---trainer.logger.version "test-$TEST_SPLIT"
+--trainer.logger.name "cls-iss-24h" \
+--trainer.logger.version "cls-iss-24h-test-$TEST_SPLIT"
 

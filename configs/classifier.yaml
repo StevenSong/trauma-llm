@@ -17,7 +17,7 @@ trainer:
       init_args:
         monitor: "val_loss"
         mode: "min"
-        patience: 15
+        patience: 6
     - class_path: lightning.pytorch.callbacks.LearningRateMonitor
       init_args:
         logging_interval: "epoch"
@@ -41,7 +41,7 @@ lr_scheduler:
   class_path: lightning.pytorch.cli.ReduceLROnPlateau
   init_args:
     monitor: "val_loss"
-    patience: 5
+    patience: 2
 model:
   class_path: LightningClassifierModel
   init_args:
@@ -52,7 +52,6 @@ data:
   class_path: LightningTraumaData
   init_args:
     data_dir: "/gpfs/data/benjamin-lab/Trauma_LLM/data"
-    window: 24
     tokenizer_name: "whaleloops/clinicalmamba-130m-hf"
     context_length: 16384
     batch_size: 3 # check what grad accumulation is
