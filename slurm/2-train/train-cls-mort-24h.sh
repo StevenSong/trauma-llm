@@ -3,6 +3,7 @@
 #SBATCH --array=0-4
 #SBATCH --output=logs/log-train-cls-mort-24h-test-%a-%A.out
 #SBATCH --partition=gpuq
+#SBATCH --nodelist=cri22cn[403-405]
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:4
 #SBATCH --ntasks-per-node=4
