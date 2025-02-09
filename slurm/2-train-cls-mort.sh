@@ -21,10 +21,11 @@ fi
 
 srun python src/train.py fit \
 --config configs/classifier.yaml \
---model.n_classes 3 \
---model.cls_target iss_tercile \
+--model.n_classes 2 \
+--model.cls_target hospital_mortality \
 --data.n_splits 5 \
 --data.test_split $TEST_SPLIT \
 --data.val_split $VAL_SPLIT \
---trainer.logger.version "cls-iss-test-$TEST_SPLIT"
+--trainer.logger.name "cls-mort" \
+--trainer.logger.version "test-$TEST_SPLIT"
 

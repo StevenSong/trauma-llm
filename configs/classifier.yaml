@@ -11,7 +11,6 @@ trainer:
     class_path: StrictWandbLogger
     init_args:
       project: "TraumaLLM"
-      name: "mortality-prediction"
       save_dir: "./runs"
   callbacks:
     - class_path: lightning.pytorch.callbacks.EarlyStopping
@@ -58,7 +57,6 @@ data:
     context_length: 16384
     batch_size: 3 # check what grad accumulation is
     num_workers: 2
-    n_splits: 5
     split_seed: 42
     note_types:
     - "hp"
