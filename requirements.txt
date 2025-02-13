@@ -20,9 +20,11 @@ scipy
 seaborn
 statannotations
 statsmodels
+tableone
 tensorboard
 torch
 tqdm
 transformers
 vllm
 wandb
+omegaconf

@@ -27,6 +27,7 @@ class TraumaDataset(Dataset):
         include_splits: list[int] | None = None,
         exclude_splits: list[int] | None = None,
         split_seed: int = 42,
+        debug_len: bool = False,
     ):
         if include_splits is not None and exclude_splits is not None:
             raise ValueError("Passing include and exclude split lists is redundant")
@@ -72,9 +73,13 @@ class TraumaDataset(Dataset):
         self.labels = labels.loc[idxs].reset_index(drop=True)
         self.tok = AutoTokenizer.from_pretrained(tokenizer_name)
         self.context_length = context_length
+        self.debug_len = debug_len
 
     def __getitem__(self, i: int) -> dict[str, torch.Tensor]:
         x = self.notes.loc[i]
+        if self.debug_len:
+            out = self.tok(x["NOTE_TEXT"])
+            return len(out["input_ids"])
         label = self.labels.loc[i]
         out = self.tok(
             x["NOTE_TEXT"],
@@ -134,6 +139,11 @@ def filter_notes(
 ) -> pd.DataFrame:
     note_lines = []
     for note_type in note_types:
+        # TODO consider filtering notes on encounter as well?
+        # this is currently handled by selecting patients with only one encounter
+        # and taking notes that occur within a short window from the start of
+        # their encounter
+
         df = note_data[note_type]
         # different notes may come in at the same time but the same note should not have different timestamps
         assert (
@@ -289,6 +299,8 @@ class LightningTraumaData(LightningDataModule):
         n_splits: int = 5,
         split_seed: int = 42,
         note_types: list[NOTE_TYPE] = DEFAULT_NOTE_TYPES,
+        inference_batch_size: int = 64,
+        inference_num_workers: int = 4,
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -305,6 +317,7 @@ class LightningTraumaData(LightningDataModule):
                 tokenizer_name=self.hparams.tokenizer_name,
                 context_length=self.hparams.context_length,
             )
+        if stage in ["fit", "validate"]:
             self.val_ds = TraumaDataset(
                 data_dir=self.hparams.data_dir,
                 window=self.hparams.window,
@@ -315,6 +328,7 @@ class LightningTraumaData(LightningDataModule):
                 tokenizer_name=self.hparams.tokenizer_name,
                 context_length=self.hparams.context_length,
             )
+        if stage in ["test", "predict"]:
             self.test_ds = TraumaDataset(
                 data_dir=self.hparams.data_dir,
                 window=self.hparams.window,
@@ -354,7 +368,10 @@ class LightningTraumaData(LightningDataModule):
             shuffle=False,
             pin_memory=True,
             drop_last=False,
-            batch_size=self.hparams.batch_size,
+            batch_size=self.hparams.inference_batch_size,
             collate_fn=default_collate,
-            num_workers=self.hparams.num_workers,
+            num_workers=self.hparams.inference_num_workers,
         )
+
+    def predict_dataloader(self):
+        return self.test_dataloader()
