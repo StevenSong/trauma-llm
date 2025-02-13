@@ -27,6 +27,7 @@ class TraumaDataset(Dataset):
         include_splits: list[int] | None = None,
         exclude_splits: list[int] | None = None,
         split_seed: int = 42,
+        debug_len: bool = False,
     ):
         if include_splits is not None and exclude_splits is not None:
             raise ValueError("Passing include and exclude split lists is redundant")
@@ -72,9 +73,13 @@ class TraumaDataset(Dataset):
         self.labels = labels.loc[idxs].reset_index(drop=True)
         self.tok = AutoTokenizer.from_pretrained(tokenizer_name)
         self.context_length = context_length
+        self.debug_len = debug_len
 
     def __getitem__(self, i: int) -> dict[str, torch.Tensor]:
         x = self.notes.loc[i]
+        if self.debug_len:
+            out = self.tok(x["NOTE_TEXT"])
+            return len(out["input_ids"])
         label = self.labels.loc[i]
         out = self.tok(
             x["NOTE_TEXT"],
@@ -134,6 +139,11 @@ def filter_notes(
 ) -> pd.DataFrame:
     note_lines = []
     for note_type in note_types:
+        # TODO consider filtering notes on encounter as well?
+        # this is currently handled by selecting patients with only one encounter
+        # and taking notes that occur within a short window from the start of
+        # their encounter
+
         df = note_data[note_type]
         # different notes may come in at the same time but the same note should not have different timestamps
         assert (
